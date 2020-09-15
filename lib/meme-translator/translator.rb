@@ -31,14 +31,18 @@ class Translator
     json.keys.each do |key|
       json[key].keys.each do |k|
         langs = @@languages.keys.sample(@passes) << 'en'
-        puts "Starting with phrase: '#{json[key][k]}'"
-        (@passes + 1).times do |i|
-          from = i == 0 ? nil : langs[i - 1]
-          json[key][k] = translate_phrase(json[key][k], langs[i], from)
-        end
+        if json[key][k].start_with?("{")
+          puts "Skipping phrase '#{json[key][k]}', as it isn't localized."
+        else
+          puts "Starting with phrase: '#{json[key][k]}'"
+          (@passes + 1).times do |i|
+            from = i == 0 ? nil : langs[i - 1]
+            json[key][k] = translate_phrase(json[key][k], langs[i], from)
+          end
 
-        puts "Final output after #{@passes + 1} passes: '#{json[key][k]}'"
-        puts ""
+          puts "Final output after #{@passes + 1} passes: '#{json[key][k]}'"
+          puts ""
+        end
       end
     end
 
