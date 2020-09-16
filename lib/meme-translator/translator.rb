@@ -39,7 +39,10 @@ class Translator
           puts "Starting with phrase: '#{json[key][k]}'"
           (@passes + 1).times do |i|
             from = i == 0 ? nil : langs[i - 1]
-            json[key][k] = translate_phrase(json[key][k], langs[i], from)
+            json[key][k], code = translate_phrase(json[key][k], langs[i], from)
+            if code
+              return json
+            end
           end
 
           if json[key][k].size <= 15 || json[key][k].end_with?(".")
@@ -76,16 +79,16 @@ class Translator
     loop do
       begin
           puts "Translating phrase '#{phrase}' into #{@@languages[to]}."
-          return JSON.parse(@api.translate(phrase.gsub("\"", "\\\""), to, from: from)).first['translations'].first['text'].gsub("\\\"", "\"")
+          return JSON.parse(@api.translate(phrase.gsub("\"", "\\\""), to, from: from)).first['translations'].first['text'].gsub("\\\"", "\""), nil
       rescue Exception => e
         puts e
         if tries == 5
-          puts "Program cannot recover. Exiting now."
-          exit 1
+          puts "Program cannot recover. Saving progress and exiting."
+          return phrase, :abort
         else
           puts "Something went wrong on attempt #{tries}/5. Trying again in 10 seconds"
           tries += 1
-          sleep 10
+          sleep 0.1
         end
       end
     end
