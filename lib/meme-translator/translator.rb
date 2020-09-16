@@ -28,6 +28,8 @@ class Translator
 
   def translate_file(raw)
     json = JSON.parse(raw)
+    lines = json.values.map { |h| h.values.size }.sum
+    line = 1
     json.keys.each do |key|
       json[key].keys.each do |k|
         langs = @@languages.keys.sample(@passes) << 'en'
@@ -40,8 +42,14 @@ class Translator
             json[key][k] = translate_phrase(json[key][k], langs[i], from)
           end
 
+          if json[key][k].size <= 15 || json[key][k].end_with?(".")
+            json[key][k] = json[key][k][0...-1]
+          end
+
           puts "Final output after #{@passes + 1} passes: '#{json[key][k]}'"
+          puts "Completed line #{line}/#{lines}."
           puts ""
+          line += 1
         end
       end
     end
@@ -64,7 +72,22 @@ class Translator
   private
 
   def translate_phrase(phrase, to, from)
-    puts "Translating phrase '#{phrase}' into #{@@languages[to]}."
-    return JSON.parse(@api.translate(phrase.gsub("\"", "\\\""), to, from: from)).first['translations'].first['text'].gsub("\\\"", "\"")
+    tries = 1
+    loop do
+      begin
+          puts "Translating phrase '#{phrase}' into #{@@languages[to]}."
+          return JSON.parse(@api.translate(phrase.gsub("\"", "\\\""), to, from: from)).first['translations'].first['text'].gsub("\\\"", "\"")
+      rescue Exception => e
+        puts e
+        if tries == 5
+          puts "Program cannot recover. Exiting now."
+          exit 1
+        else
+          puts "Something went wrong on attempt #{tries}/5. Trying again in 10 seconds"
+          tries += 1
+          sleep 10
+        end
+      end
+    end
   end
 end
