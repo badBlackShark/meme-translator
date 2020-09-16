@@ -88,7 +88,7 @@ class Translator
         else
           puts "Something went wrong on attempt #{tries}/5. Trying again in 10 seconds"
           tries += 1
-          sleep 0.1
+          sleep 10
         end
       end
     end
