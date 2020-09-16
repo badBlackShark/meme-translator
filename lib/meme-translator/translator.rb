@@ -65,7 +65,8 @@ class Translator
     puts "Starting with phrase: '#{phrase}'"
     (@passes + 1).times do |i|
       from = i == 0 ? nil : langs[i - 1]
-      phrase = translate_phrase(phrase, langs[i], from)
+      phrase, code = translate_phrase(phrase, langs[i], from)
+      break if code
     end
 
     puts "Final output after #{@passes + 1} passes: '#{phrase}'"
