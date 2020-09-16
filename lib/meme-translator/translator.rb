@@ -31,7 +31,7 @@ class Translator
     json.keys.each do |key|
       json[key].keys.each do |k|
         langs = @@languages.keys.sample(@passes) << 'en'
-        if json[key][k].start_with?("{")
+        if json[key][k].start_with?("{$")
           puts "Skipping phrase '#{json[key][k]}', as it isn't localized."
         else
           puts "Starting with phrase: '#{json[key][k]}'"
