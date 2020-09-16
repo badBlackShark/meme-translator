@@ -49,6 +49,18 @@ class Translator
     return json
   end
 
+  def translate_single_phrase(phrase)
+    langs = @@languages.keys.sample(@passes) << 'en'
+    puts "Starting with phrase: '#{phrase}'"
+    (@passes + 1).times do |i|
+      from = i == 0 ? nil : langs[i - 1]
+      phrase = translate_phrase(phrase, langs[i], from)
+    end
+
+    puts "Final output after #{@passes + 1} passes: '#{phrase}'"
+    puts ""
+  end
+
   private
 
   def translate_phrase(phrase, to, from)
